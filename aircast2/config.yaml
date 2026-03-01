@@ -1,9 +1,9 @@
 ---
 name: AirCast 2
-version: dev
+version: "0.1.0"
 slug: aircast2
 description: AirPlay 2 capabilities for your Chromecast devices.
-url: https://github.com/BRid37/app-aircast
+url: "https://github.com/BRid37/app-aircast"
 startup: services
 init: false
 arch:
@@ -17,6 +17,7 @@ options:
   mode: easy
   latency_offset: 0
   airplay_mode: classic
+  excluded_devices: []
 schema:
   log_level: list(trace|debug|info|warning|error)?
   mode: list(easy|advanced)
