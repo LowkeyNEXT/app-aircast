@@ -1,0 +1,6 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Start NQPTP - PTP timing daemon required for AirPlay 2
+# ==============================================================================
+bashio::log.info "Starting NQPTP timing daemon..."
+exec nqptp

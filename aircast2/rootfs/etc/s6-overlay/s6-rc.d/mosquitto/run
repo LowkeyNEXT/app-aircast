@@ -1,0 +1,6 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Start internal MQTT broker for IPC between shairport-sync and bridge
+# ==============================================================================
+bashio::log.info "Starting internal MQTT broker..."
+exec mosquitto -c /etc/mosquitto/mosquitto.conf

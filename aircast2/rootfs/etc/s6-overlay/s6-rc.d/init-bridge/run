@@ -1,0 +1,27 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Initialize the AirPlay-Chromecast bridge
+# ==============================================================================
+bashio::log.info "Initializing AirPlay-Chromecast bridge..."
+
+# Create runtime directories
+mkdir -p /run/bridge/pipes
+mkdir -p /run/bridge/configs
+
+# Log the selected mode
+mode=$(bashio::config 'mode')
+airplay_mode=$(bashio::config 'airplay_mode')
+bashio::log.info "Bridge mode: ${mode}"
+bashio::log.info "AirPlay mode: ${airplay_mode}"
+
+if [[ "${mode}" == "easy" ]]; then
+    if bashio::config.has_value 'whole_house_group'; then
+        group=$(bashio::config 'whole_house_group')
+        bashio::log.info "Whole house group: ${group}"
+    else
+        bashio::log.info \
+            "No whole_house_group configured. Will auto-detect largest group."
+    fi
+fi
+
+bashio::log.info "Bridge initialization complete."

@@ -1,0 +1,25 @@
+general = {
+    name = "${DEVICE_NAME}";
+    output_backend = "pipe";
+    port = ${AIRPLAY_PORT};
+    drift_tolerance_in_seconds = 0.002;
+    ${AIRPLAY2_EXTRA}
+};
+
+pipe = {
+    name = "${PIPE_PATH}";
+    audio_backend_buffer_desired_length_in_seconds = 0.2;
+};
+
+mqtt = {
+    enabled = "yes";
+    hostname = "${MQTT_HOST}";
+    port = ${MQTT_PORT};
+    topic = "shairport/${DEVICE_TOPIC}";
+    publish_raw = "yes";
+    publish_parsed = "yes";
+};
+
+sessioncontrol = {
+    active_state_timeout = 10.0;
+};

@@ -1,0 +1,28 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Start the AirPlay-Chromecast bridge service
+# ==============================================================================
+bashio::log.info "Starting AirPlay-Chromecast bridge service..."
+
+# Export configuration as environment variables for the Python bridge
+export BRIDGE_LOG_LEVEL
+BRIDGE_LOG_LEVEL=$(bashio::config 'log_level' 'info')
+
+export BRIDGE_MODE
+BRIDGE_MODE=$(bashio::config 'mode')
+
+export BRIDGE_LATENCY_OFFSET
+BRIDGE_LATENCY_OFFSET=$(bashio::config 'latency_offset')
+
+export BRIDGE_AIRPLAY_MODE
+BRIDGE_AIRPLAY_MODE=$(bashio::config 'airplay_mode')
+
+export BRIDGE_WHOLE_HOUSE_GROUP
+BRIDGE_WHOLE_HOUSE_GROUP=$(bashio::config 'whole_house_group' '')
+
+export BRIDGE_MQTT_HOST="127.0.0.1"
+export BRIDGE_MQTT_PORT="1883"
+export BRIDGE_HTTP_PORT_BASE="8089"
+export PYTHONPATH="/usr/share"
+
+exec python3 -u -m bridge

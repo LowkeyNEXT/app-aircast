@@ -1,0 +1,38 @@
+---
+configuration:
+  log_level:
+    name: Log Level
+    description: >-
+      Controls the level of log details the bridge service provides.
+  mode:
+    name: Mode
+    description: >-
+      "easy" casts to a single Whole House Chromecast group and mutes
+      speakers you didn't select (requires one group configured in Google
+      Home). "advanced" matches your AirPlay selection to the best
+      pre-configured Chromecast group using smart group matching.
+  whole_house_group:
+    name: Whole House Group
+    description: >-
+      Name of the Chromecast group to use in easy mode. This group should
+      contain all your Chromecast speakers. Create it in the Google Home
+      app. If not set, the addon will attempt to auto-detect the largest
+      available group.
+  latency_offset:
+    name: Latency Offset
+    description: >-
+      Additional latency offset in milliseconds. Increase this value if
+      you experience audio sync issues between the AirPlay source and
+      Chromecast playback.
+  airplay_mode:
+    name: AirPlay Mode
+    description: >-
+      "classic" uses AirPlay 1 protocol for reliable multi-device
+      discovery (recommended). "airplay2" uses AirPlay 2 for better audio
+      quality and buffered streaming but may have issues with multiple
+      speakers on the same network (experimental).
+  excluded_devices:
+    name: Excluded Devices
+    description: >-
+      List of Chromecast device names to exclude. These devices will not
+      appear as AirPlay speakers.
