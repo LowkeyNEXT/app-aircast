@@ -3,4 +3,11 @@
 # Start NQPTP - PTP timing daemon required for AirPlay 2
 # ==============================================================================
 bashio::log.info "Starting NQPTP timing daemon..."
-exec nqptp
+
+if ! command -v nqptp > /dev/null 2>&1; then
+    bashio::log.fatal "NQPTP binary not found!"
+    exit 1
+fi
+
+bashio::log.info "NQPTP binary found at $(command -v nqptp)"
+exec nqptp 2>&1

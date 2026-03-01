@@ -8,18 +8,21 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Build arguments
 ARG BUILD_ARCH=amd64
 ARG NQPTP_VERSION="1.2.4"
-ARG SHAIRPORT_SYNC_VERSION="4.3.4"
+ARG SHAIRPORT_SYNC_VERSION="4.3.7"
 
 # hadolint ignore=DL3008,DL3003
 RUN \
     apt-get update \
     \
+    # Install build dependencies
     && apt-get install -y --no-install-recommends \
         build-essential git autoconf automake libtool pkg-config \
         libmbedtls-dev libpopt-dev libconfig-dev libavahi-client-dev \
         libsodium-dev libgcrypt20-dev libmosquitto-dev libsoxr-dev \
         libplist-dev uuid-dev xxd \
     \
+    # Build NQPTP
+    && echo "=== Building NQPTP ${NQPTP_VERSION} ===" \
     && git clone --depth 1 --branch "${NQPTP_VERSION}" \
         https://github.com/mikebrady/nqptp.git /tmp/nqptp \
     && cd /tmp/nqptp \
@@ -27,7 +30,10 @@ RUN \
     && ./configure \
     && make -j"$(nproc)" \
     && make install \
+    && echo "=== NQPTP installed ===" \
     \
+    # Build shairport-sync
+    && echo "=== Building shairport-sync ${SHAIRPORT_SYNC_VERSION} ===" \
     && git clone --depth 1 --branch "${SHAIRPORT_SYNC_VERSION}" \
         https://github.com/mikebrady/shairport-sync.git /tmp/shairport-sync \
     && cd /tmp/shairport-sync \
@@ -39,12 +45,13 @@ RUN \
         --with-stdout \
         --with-mqtt-client \
         --with-ssl=mbedtls \
-        --with-apple-alac \
         --with-soxr \
         --sysconfdir=/etc \
     && make -j"$(nproc)" \
     && make install \
+    && echo "=== shairport-sync installed ===" \
     \
+    # Remove build deps, install runtime deps
     && apt-get purge -y --auto-remove \
         build-essential git autoconf automake libtool pkg-config \
         xxd \
@@ -59,6 +66,14 @@ RUN \
         pychromecast==14.0.5 \
         paho-mqtt==2.1.0 \
         aiohttp==3.11.11 \
+    && echo "=== Python dependencies installed ===" \
+    \
+    # Verify critical binaries exist
+    && shairport-sync --version \
+    && nqptp --version || true \
+    && echo "=== Build complete ===" \
+    \
+    # Cleanup
     && rm -fr \
         /tmp/* \
         /var/{cache,log}/* \

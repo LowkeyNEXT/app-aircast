@@ -3,4 +3,11 @@
 # Start internal MQTT broker for IPC between shairport-sync and bridge
 # ==============================================================================
 bashio::log.info "Starting internal MQTT broker..."
-exec mosquitto -c /etc/mosquitto/mosquitto.conf
+
+if ! command -v mosquitto > /dev/null 2>&1; then
+    bashio::log.fatal "Mosquitto binary not found!"
+    exit 1
+fi
+
+bashio::log.info "Mosquitto config: /etc/mosquitto/mosquitto.conf"
+exec mosquitto -c /etc/mosquitto/mosquitto.conf 2>&1

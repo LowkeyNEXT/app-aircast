@@ -4,6 +4,22 @@
 # ==============================================================================
 bashio::log.info "Starting AirPlay-Chromecast bridge service..."
 
+# Check Python is available
+if ! command -v python3 > /dev/null 2>&1; then
+    bashio::log.fatal "Python3 not found!"
+    exit 1
+fi
+bashio::log.info "Python3: $(python3 --version 2>&1)"
+
+# Check critical binaries
+for bin in shairport-sync ffmpeg nqptp mosquitto; do
+    if command -v "${bin}" > /dev/null 2>&1; then
+        bashio::log.info "Found: ${bin} at $(command -v ${bin})"
+    else
+        bashio::log.error "Missing: ${bin}"
+    fi
+done
+
 # Export configuration as environment variables for the Python bridge
 export BRIDGE_LOG_LEVEL
 BRIDGE_LOG_LEVEL=$(bashio::config 'log_level' 'info')
@@ -25,4 +41,7 @@ export BRIDGE_MQTT_PORT="1883"
 export BRIDGE_HTTP_PORT_BASE="8089"
 export PYTHONPATH="/usr/share"
 
-exec python3 -u -m bridge
+bashio::log.info "Config: mode=${BRIDGE_MODE} airplay=${BRIDGE_AIRPLAY_MODE} log=${BRIDGE_LOG_LEVEL}"
+bashio::log.info "Launching Python bridge..."
+
+exec python3 -u -m bridge 2>&1
