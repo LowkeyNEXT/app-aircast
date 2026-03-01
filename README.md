@@ -1,126 +1,126 @@
-# Home Assistant Community App: AirCast
+# AirCast 2 — AirPlay to Chromecast Bridge
 
-[![GitHub Release][releases-shield]][releases]
-![Project Stage][project-stage-shield]
 [![License][license-shield]](LICENSE.md)
-
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
 
-[![Github Actions][github-actions-shield]][github-actions]
-![Project Maintenance][maintenance-shield]
-[![GitHub Activity][commits-shield]][commits]
+AirPlay capabilities for your Chromecast speakers, powered by
+[shairport-sync][shairport-sync] and [pychromecast][pychromecast].
 
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
+## Add to Home Assistant
 
-[![Sponsor Frenck via GitHub Sponsors][github-sponsors-shield]][github-sponsors]
+[![Add repository to Home Assistant][addon-badge]][addon-repo]
 
-[![Support Frenck on Patreon][patreon-shield]][patreon]
+Click the button above to add this repository to your Home Assistant instance,
+then install the **AirCast 2** addon from the Add-on Store.
 
-AirPlay capabilities for your Chromecast players.
+### Manual installation
+
+1. Go to **Settings** > **Add-ons** > **Add-on Store**.
+2. Click the **three dots** menu (top right) > **Repositories**.
+3. Paste this URL and click **Add**:
+   ```
+   https://github.com/BRid37/app-aircast
+   ```
+4. Refresh the page. **AirCast 2** will appear in the store.
+5. Click **Install**, then **Start**.
 
 ## About
 
-Apple devices use AirPlay to send audio to other devices, but this is not
-compatible with Google's Chromecast. This app tries to solve this
-compatibility gap.
+AirCast 2 discovers Chromecast devices on your network and creates virtual
+AirPlay speakers for each one. Select them from your iPhone, iPad, or Mac
+and audio is bridged to the Chromecast.
 
-It detects Chromecast players in your network and creates virtual AirPlay
-devices for each of them. It acts as a bridge between the AirPlay client
-and the real Chromecast player.
+### Features
 
-The AirCast app is based on the excellent [AirConnect][airconnect] project.
+- **Classic AirPlay and AirPlay 2** — choose the mode that works best for
+  your setup.
+- **Smart multi-room** — select multiple AirPlay speakers and the addon
+  automatically routes audio to the matching Chromecast group.
+- **Easy mode** — create one "Whole House" Chromecast group and the addon
+  handles everything. Speakers you didn't select are muted; speakers you
+  add are unmuted — audio stays perfectly in sync.
+- **Advanced mode** — create multiple Chromecast groups in Google Home for
+  different room combinations. The addon picks the best match using
+  Jaccard similarity scoring.
+- **Auto-discovery** — install and go. No manual configuration required for
+  basic single-speaker use.
 
-[:books: Read the full app documentation][docs]
+### How it works
 
-## Support
+```
+iPhone ──AirPlay──> shairport-sync ──FIFO──> Python bridge ──HTTP──> Chromecast
+```
 
-Got questions?
+1. The addon discovers all Chromecasts and groups on your network via mDNS.
+2. A [shairport-sync][shairport-sync] instance is created for each Chromecast.
+3. When you play audio, it flows through a named pipe, is encoded to FLAC by
+   ffmpeg, served over HTTP, and pulled by the Chromecast.
+4. When multiple speakers are selected, the addon detects this via internal
+   MQTT and routes audio to the appropriate Chromecast group.
 
-You have several options to get them answered:
+### Architecture
 
-- The [Home Assistant Community Apps Discord chat server][discord] for app
-  support and feature requests.
-- The [Home Assistant Discord chat server][discord-ha] for general Home
-  Assistant discussions and questions.
-- The Home Assistant [Community Forum][forum].
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
+| Component | Role |
+|-----------|------|
+| [shairport-sync][shairport-sync] | AirPlay receiver (classic + AirPlay 2) |
+| [NQPTP][nqptp] | PTP timing for AirPlay 2 synchronization |
+| [pychromecast][pychromecast] | Chromecast discovery, control, and group management |
+| [Mosquitto][mosquitto] | Internal MQTT broker for IPC (bundled, localhost only) |
+| ffmpeg | Real-time PCM to FLAC audio encoding |
+| s6-overlay | Service management inside the container |
 
-You could also [open an issue here][issue] GitHub.
+## Configuration
 
-## Contributing
+| Option | Default | Description |
+|--------|---------|-------------|
+| `mode` | `easy` | `easy` (whole house + muting) or `advanced` (smart group matching) |
+| `airplay_mode` | `classic` | `classic` (reliable) or `airplay2` (experimental, better quality) |
+| `whole_house_group` | _(auto)_ | Name of the Chromecast group for easy mode |
+| `latency_offset` | `0` | Additional latency offset in ms |
+| `excluded_devices` | `[]` | Chromecast names to skip |
+| `log_level` | `info` | `trace`, `debug`, `info`, `warning`, `error` |
 
-This is an active open-source project. We are always open to people who want to
-use the code or contribute to it.
+See the [full documentation][docs] for detailed setup guides.
 
-We have set up a separate document containing our
-[contribution guidelines](.github/CONTRIBUTING.md).
+## Multi-Room Setup
 
-Thank you for being involved! :heart_eyes:
+Chromecast groups cannot be created programmatically, so you need to set them
+up in the Google Home app first.
 
-## Authors & contributors
+**Easy mode**: Create one group with all your speakers (e.g., "Whole House").
+The addon casts to that group and mutes speakers you didn't select.
 
-The original setup of this repository is by [Franck Nijhof][frenck].
+**Advanced mode**: Create groups for common room combinations (e.g.,
+"Kitchen + Living Room", "Downstairs"). The addon matches your AirPlay
+selection to the best group automatically.
 
-For a full list of all authors and contributors,
-check [the contributor's page][contributors].
+## Credits
 
-## We have got some Home Assistant apps for you
+This project is a fork of [hassio-addons/app-aircast][original] by
+[Franck Nijhof][frenck], reimplemented with AirPlay 2 support.
 
-Want some more functionality to your Home Assistant instance?
-
-We have created multiple apps for Home Assistant. For a full list, check out
-our [GitHub Repository][repository].
+Built on:
+- [shairport-sync][shairport-sync] by Mike Brady (MIT)
+- [NQPTP][nqptp] by Mike Brady (GPL-2.0)
+- [pychromecast][pychromecast] by Home Assistant team (MIT)
 
 ## License
 
-MIT License
+MIT License — see [LICENSE.md](LICENSE.md) for details.
 
-Copyright (c) 2017-2026 Franck Nijhof
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+NQPTP is distributed under GPL-2.0 and runs as a separate process within
+the container.
 
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
-[airconnect]: https://github.com/philippe44/AirConnect
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
-[commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/app-aircast.svg
-[commits]: https://github.com/hassio-addons/app-aircast/commits/main
-[contributors]: https://github.com/hassio-addons/app-aircast/graphs/contributors
-[discord-ha]: https://discord.gg/c5DvZ4e
-[discord-shield]: https://img.shields.io/discord/478094546522079232.svg
-[discord]: https://discord.me/hassioaddons
-[docs]: https://github.com/hassio-addons/app-aircast/blob/main/aircast/DOCS.md
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg
-[forum]: https://community.home-assistant.io/t/home-assistant-community-app-aircast/36742?u=frenck
+[addon-badge]: https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg
+[addon-repo]: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FBRid37%2Fapp-aircast
+[docs]: https://github.com/BRid37/app-aircast/blob/main/aircast2/DOCS.md
 [frenck]: https://github.com/frenck
-[github-actions-shield]: https://github.com/hassio-addons/app-aircast/workflows/CI/badge.svg
-[github-actions]: https://github.com/hassio-addons/app-aircast/actions
-[github-sponsors-shield]: https://frenck.dev/wp-content/uploads/2019/12/github_sponsor.png
-[github-sponsors]: https://github.com/sponsors/frenck
-[issue]: https://github.com/hassio-addons/app-aircast/issues
-[license-shield]: https://img.shields.io/github/license/hassio-addons/app-aircast.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2026.svg
-[patreon-shield]: https://frenck.dev/wp-content/uploads/2019/12/patreon.png
-[patreon]: https://www.patreon.com/frenck
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-production%20ready-brightgreen.svg
-[reddit]: https://reddit.com/r/homeassistant
-[releases-shield]: https://img.shields.io/github/release/hassio-addons/app-aircast.svg
-[releases]: https://github.com/hassio-addons/app-aircast/releases
-[repository]: https://github.com/hassio-addons/repository
+[license-shield]: https://img.shields.io/github/license/BRid37/app-aircast.svg
+[mosquitto]: https://mosquitto.org/
+[nqptp]: https://github.com/mikebrady/nqptp
+[original]: https://github.com/hassio-addons/app-aircast
+[pychromecast]: https://github.com/home-assistant-libs/pychromecast
+[shairport-sync]: https://github.com/mikebrady/shairport-sync
